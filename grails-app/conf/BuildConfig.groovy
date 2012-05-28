@@ -5,8 +5,6 @@ grails.project.test.reports.dir = "target/test-reports"
 grails.project.target.level = 1.6
 grails.project.source.level = 1.6
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
-grails.plugin.location.'si-events' = '../plugin-platform-project/grails-plugin-platform-incubator/events-si'
-grails.plugin.location.'push-events' = '../plugin-platform-project/events-push'
 
 grails.tomcat.nio = true
 
@@ -34,6 +32,7 @@ grails.project.dependency.resolution = {
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
+        mavenRepo "https://oss.sonatype.org/content/repositories/snapshots"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
@@ -60,8 +59,10 @@ grails.project.dependency.resolution = {
 
         runtime ":cloud-foundry:1.2.2"
         runtime ":hibernate:$grailsVersion"
-        //runtime ":redis:1.0.0.M8"
         runtime ":rabbitmq:1.0.0.RC1"
+
+        runtime ":events-si:1.0.M2-SNAPSHOT"
+        runtime ":events-push:1.0.M1-SNAPSHOT"
 
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0"
