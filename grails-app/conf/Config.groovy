@@ -100,6 +100,9 @@ log4j = {
     }
 }
 
+plugin.platformCore.navigation.enable = false
+plugin.platformCore.security.enable = false
+
 rabbitmq {
     connectionfactory {
         username = 'guest'
