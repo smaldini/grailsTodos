@@ -1,0 +1,3 @@
+Sample deployed on [cloudfoundry](http://grailstodos.cloudfoundry.com/todos).
+
+Using [Events-Push](https://github.com/smaldini/grails-events-push), [Events-SI](https://github.com/smaldini/grails-events-si), Backbone JS, RabbitMQ, Atmosphere, Platform-core plugin Coffeescript and this [Cool article](http://lauripiispanen.github.com/blog/2012/01/31/building-a-backend-for-backbone-dot-js-todos-example-with-grails-and-mongodb/)
