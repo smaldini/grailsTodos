@@ -33,23 +33,14 @@ grails.project.dependency.resolution = {
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
         mavenRepo "https://oss.sonatype.org/content/repositories/snapshots"
+        mavenRepo "http://maven.springframework.org/milestone/"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.18'
         runtime 'org.springframework.integration:spring-integration-amqp:2.1.1.RELEASE'
 
-       /* def tomcatVersion = "7.0.27"
-       build("org.apache.tomcat:tomcat-catalina-ant:$tomcatVersion") {
-           transitive = false
-       }
-       build "org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion"
-       build "org.apache.tomcat.embed:tomcat-embed-jasper:$tomcatVersion"
-       build "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatVersion"
 
-       build "org.grails:grails-plugin-tomcat:${grailsVersion}"*/
-
-       //compile 'org.atmosphere:atmosphere-runtime:0.9-SNAPSHOT'
     }
 
     plugins {
