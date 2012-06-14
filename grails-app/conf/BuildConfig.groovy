@@ -45,8 +45,10 @@ grails.project.dependency.resolution = {
 
     plugins {
         runtime ":jquery:1.7.1"
-        runtime ":resources:1.1.6"
-        runtime ":coffeescript-resources:0.3.2"
+        compile ":resources:1.2-RC1"
+        runtime(":coffeescript-resources:0.3.2"){
+            exclude 'resources'
+        }
 
         runtime ":cloud-foundry:1.2.2"
         runtime ":hibernate:$grailsVersion"

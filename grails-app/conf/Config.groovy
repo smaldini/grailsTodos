@@ -58,6 +58,8 @@ grails.exceptionresolver.params.exclude = ['password']
 // enable query caching by default
 grails.hibernate.cache.queries = true
 
+grails.plugin.cloudfoundry.showStackTrace = true
+
 
 // set per-environment serverURL stem for creating absolute links
 environments {
@@ -92,6 +94,8 @@ log4j = {
     info 'grails.app'
     info 'org.grails.plugin.platform.events'
     info 'org.springframework.amqp'
+
+    debug 'grails.plugin.cloudfoundry.Scripts'
 
     warn 'org.mortbay.log'
 
