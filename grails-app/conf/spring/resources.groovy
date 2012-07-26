@@ -7,10 +7,9 @@ beans = {
     errorsAmqp(amqp.DumpAmqpErrors)
 
 
-    siAmqp.'publish-subscribe-channel'(id:'afterInsert','connection-factory':'rabbitMQConnectionFactory', 'error-handler':"errorsAmqp")
-    siAmqp.'publish-subscribe-channel'(id:'afterDelete','connection-factory':'rabbitMQConnectionFactory', 'error-handler':"errorsAmqp")
-    siAmqp.'publish-subscribe-channel'(id:'afterUpdate','connection-factory':'rabbitMQConnectionFactory', 'error-handler':"errorsAmqp")
-
+    siAmqp.'publish-subscribe-channel'(id: 'gorm://afterInsert', 'connection-factory': 'rabbitMQConnectionFactory', 'error-handler': "errorsAmqp")
+    siAmqp.'publish-subscribe-channel'(id: 'gorm://afterDelete', 'connection-factory': 'rabbitMQConnectionFactory', 'error-handler': "errorsAmqp")
+    siAmqp.'publish-subscribe-channel'(id: 'gorm://afterUpdate', 'connection-factory': 'rabbitMQConnectionFactory', 'error-handler': "errorsAmqp")
 
 
 }
