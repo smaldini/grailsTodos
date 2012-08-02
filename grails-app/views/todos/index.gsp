@@ -10,7 +10,7 @@
   </r:script>
   <r:script>
 $(function(){
-  window.grailsEvents = new grails.Events('${createLink(uri: '')}');
+  window.grailsEvents = new grails.Events('${createLink(uri: '')}', null, {transport:'long-polling'});
 
   grailsEvents.on("afterInsert", function(data){
         var model = Todos.get(data.id);
