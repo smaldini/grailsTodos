@@ -105,8 +105,8 @@ log4j = {
     }
 }
 
-plugin.platformCore.navigation.enable = false
-plugin.platformCore.security.enable = false
+plugin.platformCore.navigation.disable = true
+plugin.platformCore.security.disable = true
 
 rabbitmq {
     connectionfactory {
