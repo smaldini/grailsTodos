@@ -4,6 +4,10 @@ modules = {
         resource url: 'js/todos.coffee'
         resource url: 'css/todos.css'
     }
+    game{
+        dependsOn 'jquery, grailsEvents'
+        resource url: 'js/animation/easeljs-0.5.0.min.js'
+    }
     backbone {
         resource url: 'js/backbone-min.js'
     }

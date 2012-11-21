@@ -35,7 +35,7 @@ grails.project.dependency.resolution = {
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
-        mavenRepo "https://oss.sonatype.org/content/repositories/snapshots"
+        mavenRepo "https://oss.sonatype.org/content/repositories/releases"
         mavenRepo "http://maven.springframework.org/milestone/"
     }
     dependencies {
@@ -48,18 +48,18 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        runtime ":jquery:1.7.1"
-        compile ":resources:1.2-RC1"
+        runtime ":jquery:1.8.0"
+        compile ":resources:1.1.6"
         runtime(":coffeescript-resources:0.3.2"){
             exclude 'resources'
         }
 
-        runtime ":cloud-foundry:1.2.2"
+        runtime ":cloud-foundry:1.2.3"
         runtime ":hibernate:$grailsVersion"
         runtime ":rabbitmq:1.0.0.RC1"
 
         runtime (":events-si:1.0.M2-SNAPSHOT")
-        runtime (":events-push:1.0.M2-SNAPSHOT")
+        runtime (":events-push:1.0.M3")
 
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0"

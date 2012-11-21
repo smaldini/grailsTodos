@@ -12,6 +12,7 @@ class UrlMappings {
         }
 
         "/"(view: "/index")
+        "/game/$playerName"(view: "/game")
         "500"(view: '/error')
     }
 }
