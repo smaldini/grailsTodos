@@ -12,7 +12,7 @@ class UrlMappings {
         }
 
         "/"(view: "/index")
-        "/game/$playerName"(view: "/game")
+        "/game/$playerName"(controller: "game", action: 'board')
         "500"(view: '/error')
     }
 }

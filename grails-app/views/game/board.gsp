@@ -322,7 +322,7 @@
     screen_height = canvas.height;
 
     createjs.Ticker.useRAF = true;
-    createjs.Ticker.setFPS(100);
+    createjs.Ticker.setFPS(60);
 
     currentPlayer = new game.Player("${params.playerName ?: 'anonymous'}", "Boy", {onload:function(){
         currentPlayer.resetMove(currentPlayer.bmpAnimation.currentAnimation);
@@ -343,7 +343,6 @@
         }
       }
       delete game.players[targetPlayer];
-      console.log(game.players)
     });
 
     grailsEvents.on('move',function(data){
@@ -365,7 +364,7 @@
           }else if(data.action == "stop"){
               targetPlayer.resetMove(data.direction, data);
           }
-          if(data){
+          if(data && !targetPlayer.hitRadius(data.x, data.y, 10)){
             targetPlayer.fixPosition(data);
           }
       }
