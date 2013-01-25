@@ -68,7 +68,7 @@ environments {
     }
     production {
         grails.logging.jul.usebridge = false
-        grails.serverURL = "http://grailstodos.cloudfoundry.com"
+        grails.serverURL = "http://ggx-smaldini.cloudfoundry.com"
     }
 }
 
@@ -97,6 +97,8 @@ log4j = {
     //trace 'org.atmosphere.cpr'
 
     debug 'grails.plugin.cloudfoundry.Scripts'
+    debug 'org.springframework.integration.dsl'
+
 
     warn 'org.mortbay.log'
 

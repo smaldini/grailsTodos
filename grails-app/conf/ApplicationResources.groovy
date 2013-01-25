@@ -1,6 +1,6 @@
 modules = {
     todos{
-        dependsOn 'backbone, underscore, jquery, grailsEvents'
+        dependsOn 'jquery, underscore, backbone, grailsEvents'
         resource url: 'js/todos.coffee'
         resource url: 'css/todos.css'
     }

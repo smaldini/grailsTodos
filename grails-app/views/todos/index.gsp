@@ -4,12 +4,11 @@
 <head>
   <title>Grails Backbone Demo: Todos</title>
   <meta name="layout" content="main">
-  <r:require module="todos"/>
+  <r:require modules="todos"/>
 
   <r:script disposition="head">
     var todos = <%=todos%>;
   </r:script>
-  <r:require module="grailsEvents"/>
   <r:script>
 $(function(){
   window.grailsEvents = new grails.Events('${createLink(uri: '')}');

@@ -8,13 +8,14 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
-  <r:require modules="game"/>
-  <meta name='layout' content='main'/>
+    <r:require modules="game"/>
+    <meta name='layout' content='main'/>
 </head>
 
 <body>
 <div class="container">
-  <canvas id="testCanvas" height="400" width="960" style="border:1px solid black;"></canvas>
+    <canvas id="testCanvas" height="400" width="960" style="border:1px solid black;"></canvas>
+    <div><span id="life">20</span> Life(s)</div>
 </div>
 
 <r:script>
@@ -41,24 +42,92 @@
   var MOVE_DOWN = "MOVE_DOWN";
   var MOVE_RIGHT = "MOVE_RIGHT";
 
-  window.grailsEvents = new grails.Events("${createLink(uri: '')}", {transport:'sse',logLevel:"debug"});
+  window.grailsEvents = new grails.Events("${createLink(uri: '')}");
 
   window.game = window.game || {};
   (function () {
+    var Mover = {
+     moveSprite : function () {
+        var _that = this;
+
+        var collisionHandler = function (x, y) {
+        if(_that.onPlayerCollision){
+              for (var j in game.players) {
+                if (game.players[j] != _that && game.players[j].hitRadius(_that.sprite.x + x * 4, _that.sprite.y + y * 4, game.players[j].hit)) {
+                    return _that.onPlayerCollision(game.players[j]);
+                }
+              }
+          }
+          return true;
+        };
+
+        if (_that.moving) {
+          var hasMoved = false;
+          if (_that.sprite.currentMoves[MOVE_RIGHT] && _that.sprite.x < screen_width - MARGIN_X && collisionHandler(-1, 0)) {
+            _that.sprite.x += _that.sprite.vX;
+            hasMoved = true;
+          }
+          if (_that.sprite.currentMoves[MOVE_LEFT] && _that.sprite.x >= MARGIN_X && collisionHandler(1, 0)) {
+            _that.sprite.x -= _that.sprite.vX;
+            hasMoved = true;
+          }
+          if (_that.sprite.currentMoves[MOVE_UP] && _that.sprite.y >= MARGIN_Y && collisionHandler(0, 1)) {
+            _that.sprite.y -= _that.sprite.vY;
+            hasMoved = true;
+          }
+          if (_that.sprite.currentMoves[MOVE_DOWN] && _that.sprite.y < screen_height - MARGIN_Y && collisionHandler(0, -1)) {
+            _that.sprite.y += _that.sprite.vY;
+            hasMoved = true;
+          }
+
+          if(!hasMoved && _that.onWallCollision){
+            _that.onWallCollision();
+          }
+
+          if(_that.onNewPosition){
+            _that.onNewPosition(_that.sprite);
+          }
+
+        }
+
+        return _that.moving;
+      },
+
+      hitRadius : function (tX, tY, tHit) {
+        var that = this;
+        if (tX - tHit > that.sprite.x + that.hit) {
+          return;
+        }
+        if (tX + tHit < that.sprite.x - that.hit) {
+          return;
+        }
+        if (tY - tHit > that.sprite.y + that.hit) {
+          return;
+        }
+        if (tY + tHit < that.sprite.y - that.hit) {
+          return;
+        }
+
+        //now do the circle distance test
+        return that.hit + tHit > Math.sqrt(Math.pow(Math.abs(that.sprite.x - tX), 2) + Math.pow(Math.abs(that.sprite.y - tY), 2));
+      }
+
+    };
     var Player = function (playerName, avatar, options) {
       var that = {};
 
+      that.hit = 24;
+      that.life = 20;
+      that.moving = false;
+
+      that.text = {};
       that.imgSprite = new Image();
       that.playerName = playerName;
       that.avatar = avatar;
-      that.text = {};
-      that.bmpAnimation = {};
-
-      that.hit = 24;
-      that.moving = false;
+      that.sprite = {};
 
 
-      that.imgSprite.onload = function () {
+      that.initializer = function () {
         var spriteSheet = new createjs.SpriteSheet({
           // image to use
           images: [that.imgSprite],
@@ -72,142 +141,104 @@
           }
         });
 
+        //createjs.SpriteSheetUtils.addFlippedFrames(spriteSheet, true, false, false);
 
-        createjs.SpriteSheetUtils.addFlippedFrames(spriteSheet, true, false, false);
+        that.sprite = new createjs.BitmapAnimation(spriteSheet);
 
-        that.bmpAnimation = new createjs.BitmapAnimation(spriteSheet);
-        that.bmpAnimation.shadow = new createjs.Shadow("#454", 0, 5, 4);
+        that.sprite.player = that;
+        that.sprite.currentMoves = options && options.currentMoves ? options.currentMoves : {};
+        that.sprite.name = that.playerName;
+        that.sprite.vX = 2;
+        that.sprite.vY = 2;
+        that.moving =  that.sprite.currentMoves.length > 0;
+        that.sprite.x = options && options.x ? options.x : Math.random() * (canvas.width - MARGIN_X) + MARGIN_X;
+        that.sprite.y = options && options.y ? options.y : Math.random() * (canvas.height - MARGIN_Y) + MARGIN_Y;
+        that.sprite.currentFrame = Math.floor(Math.random() * 20);
 
-        that.bmpAnimation.player = that;
-        that.bmpAnimation.currentMoves = options && options.currentMoves ? options.currentMoves : {};
-        that.bmpAnimation.name = that.playerName;
-        that.bmpAnimation.vX = 2;
-        that.bmpAnimation.vY = 2;
-        that.moving =  that.bmpAnimation.currentMoves.length > 0;
-        that.bmpAnimation.x = options && options.x ? options.x : Math.random() * (canvas.width - MARGIN_X) + MARGIN_X;
-        that.bmpAnimation.y = options && options.y ? options.y : Math.random() * (canvas.height - MARGIN_Y) + MARGIN_Y;
-        that.bmpAnimation.currentFrame = Math.floor(Math.random() * 20);
-        that.bmpAnimation.tick = that.moveSprite;
+        that.hitRadius = function(tx,ty,thit){
+            return Mover.hitRadius.apply(that,[tx,ty,thit]);
+        };
+        that.moveSprite = that.sprite.tick = function(){
+            return Mover.moveSprite.apply(that);
+        };
 
         that.text = new createjs.Text(
-                that.bmpAnimation.name,
+                that.sprite.name,
                 'bold 12px Arial',
                 '#000'
         );
 
 
-        that.text.x = that.bmpAnimation.x - 20;
-        that.text.y = that.bmpAnimation.y - 50;
+        that.text.x = that.sprite.x - 20;
+        that.text.y = that.sprite.y - 50;
 
 
-        stage.addChild(that.bmpAnimation);
+        stage.addChild(that.sprite);
         stage.addChild(that.text);
+
         if (options && options.onload) {
           options.onload(that);
         }
 
-        stage.addChild(that.container);
         stage.update();
 
       };
 
-      that.moveSprite = function () {
+//      that.onPlayerCollision = function(){
+//        that.moving = false;
+//        that.sprite.stop();
+//        return false;
+//      };
 
-        var collisionHandler = function (x, y) {
-          for (var j in game.players) {
-            if (game.players[j] != that && that.hitRadius(game.players[j].bmpAnimation.x + x * 4, game.players[j].bmpAnimation.y + y * 4, game.players[j].hit)) {
-              that.moving = false;
-              that.bmpAnimation.stop();
-              return false;
-            }
-          }
-          return true;
-        };
+      that.onNewPosition = function(){
+        that.text.x = that.sprite.x - 20;
+        that.text.y = that.sprite.y - 50;
+      };
 
-        if (that.moving) {
 
-          if (that.bmpAnimation.currentMoves[MOVE_RIGHT] && that.bmpAnimation.x < screen_width - MARGIN_X && collisionHandler(-1, 0)) {
-            that.bmpAnimation.x += that.bmpAnimation.vX;
-          }
-          if (that.bmpAnimation.currentMoves[MOVE_LEFT] && that.bmpAnimation.x >= MARGIN_X && collisionHandler(1, 0)) {
-            that.bmpAnimation.x -= that.bmpAnimation.vX;
-          }
-          if (that.bmpAnimation.currentMoves[MOVE_UP] && that.bmpAnimation.y >= MARGIN_Y && collisionHandler(0, 1)) {
-            that.bmpAnimation.y -= that.bmpAnimation.vY;
-          }
-          if (that.bmpAnimation.currentMoves[MOVE_DOWN] && that.bmpAnimation.y < screen_height - MARGIN_Y && collisionHandler(0, -1)) {
-            that.bmpAnimation.y += that.bmpAnimation.vY;
-          }
-          that.text.x = that.bmpAnimation.x - 20;
-          that.text.y = that.bmpAnimation.y - 50;
-
-        }
-
-        return that.moving;
+      that.stopFiring = function (local) {
+        that.firing = null;
       };
 
       that.fire = function (local) {
+      if(!local && that.firing){
+        return;
+      }
 
       if(!local){
                 grailsEvents.send('fire', {
                     playerName:that.playerName,
-                    currentMoves:that.bmpAnimation.currentMoves,
-                    x:that.bmpAnimation.x,
-                    y:that.bmpAnimation.y,
+                    currentMoves:that.sprite.currentMoves,
+                    x:that.sprite.x,
+                    y:that.sprite.y,
                     action:'firing'
                 });
         }
 
-        var text = new createjs.Text(
-                "LOL",
-                'bold 16px Arial',
-                '#A0A'
-        );
-        if (that.bmpAnimation.currentAnimation == MOVE_UP || that.bmpAnimation.currentAnimation == MOVE_DOWN) {
-          text.y = that.bmpAnimation.y + that.hit * (that.bmpAnimation.currentAnimation == MOVE_UP ? -1 : 1);
-          text.x = that.bmpAnimation.x;
-        }
-        if (that.bmpAnimation.currentAnimation == MOVE_LEFT || that.bmpAnimation.currentAnimation == MOVE_RIGHT) {
-          text.x = that.bmpAnimation.x + that.hit * (that.bmpAnimation.currentAnimation == MOVE_LEFT ? -1 : 1);
-          text.y = that.bmpAnimation.y;
-        }
-        stage.addChild(text);
-        stage.update();
+        that.firing = new game.Missile(that);
       };
 
-      that.hitRadius = function (tX, tY, tHit) {
-        if (tX - tHit > that.bmpAnimation.x + that.hit) {
-          return;
-        }
-        if (tX + tHit < that.bmpAnimation.x - that.hit) {
-          return;
-        }
-        if (tY - tHit > that.bmpAnimation.y + that.hit) {
-          return;
-        }
-        if (tY + tHit < that.bmpAnimation.y - that.hit) {
-          return;
-        }
 
-        //now do the circle distance test
-        return that.hit + tHit > Math.sqrt(Math.pow(Math.abs(that.bmpAnimation.x - tX), 2) + Math.pow(Math.abs(that.bmpAnimation.y - tY), 2));
-      };
 
       that.move = function (direction, local) {
-        if(!that.bmpAnimation.gotoAndPlay){
+        if(!that.sprite.gotoAndPlay){
             return false;
         }
 
-        that.bmpAnimation.gotoAndPlay(direction);
-        that.bmpAnimation.currentMoves[direction] = true;
+        if(that.sprite.currentMoves[direction]){
+            return;
+        }
+
+        that.sprite.gotoAndPlay(direction);
+        that.sprite.currentMoves[direction] = true;
         that.moving = true;
 
         if(!local){
           grailsEvents.send('move', {
               playerName:that.playerName,
-              currentMoves:that.bmpAnimation.currentMoves,
-              x:that.bmpAnimation.x,
-              y:that.bmpAnimation.y,
+              currentMoves:that.sprite.currentMoves,
+              x:that.sprite.x,
+              y:that.sprite.y,
               action:'moving',
               direction:direction
           });
@@ -215,53 +246,131 @@
       };
 
       that.fixPosition = function(data){
-              that.bmpAnimation.x = data.x;
-              that.bmpAnimation.y = data.y;
-              that.text.x = that.bmpAnimation.x - 20;
-              that.text.y = that.bmpAnimation.y - 50;
+              that.sprite.x = data.x;
+              that.sprite.y = data.y;
+              that.text.x = that.sprite.x - 20;
+              that.text.y = that.sprite.y - 50;
+      };
+
+      that.takeDamage = function(){
+          that.life = that.life - 1;
+          if(that.onDamage){
+            that.onDamage(that.life);
+          }
       };
 
       that.resetMove = function (direction, data) {
         if(!data){
-
               grailsEvents.send('move', {
                     playerName:that.playerName,
-                    currentMoves:that.bmpAnimation.currentMoves,
-                    x:that.bmpAnimation.x,
-                    y:that.bmpAnimation.y,
+                    currentMoves:that.sprite.currentMoves,
+                    x:that.sprite.x,
+                    y:that.sprite.y,
                     action:'stop',
-                    direction:direction ? direction : that.bmpAnimation.currentAnimation
+                    direction:direction ? direction : that.sprite.currentAnimation
               });
         }
 
         if (!direction) {
-          for (var entry in that.bmpAnimation.currentMoves) {
-            that.bmpAnimation.currentMoves[entry] = false;
+          for (var entry in that.sprite.currentMoves) {
+            that.sprite.currentMoves[entry] = false;
           }
           that.moving = false;
           return;
         }
 
-        that.bmpAnimation.currentMoves[direction] = false;
+        that.sprite.currentMoves[direction] = false;
         var stop = false;
-        for (var entry in that.bmpAnimation.currentMoves) {
-          if (that.bmpAnimation.currentMoves[entry]) {
-            that.bmpAnimation.gotoAndPlay(entry);
+        for (var entry in that.sprite.currentMoves) {
+          if (that.sprite.currentMoves[entry]) {
+            that.sprite.gotoAndPlay(entry);
           }
-          stop = stop || that.bmpAnimation.currentMoves[entry];
+          stop = stop || that.sprite.currentMoves[entry];
         }
         that.moving = stop;
         if (!stop) {
-          that.bmpAnimation.stop();
+          that.sprite.stop();
         }
       };
 
       //trigger load
-      that.imgSprite.src = "${resource(dir:'images/animation', file:'Sprite_Boy.png')}";
+      that.imgSprite.onload = that.initializer;
+      that.imgSprite.src = "${resource(dir: 'images/animation', file: 'Sprite_Boy.png')}";
 
       return that;
-    }
+    };
+
+    var Missile = function (source) {
+        var that = {};
+        that.source = source;
+        that.moving = true;
+        that.sprite = new createjs.Text(
+                "*",
+                'bold 16px Arial',
+                '#A0A'
+        );
+        that.sprite.vY = 3;
+        that.sprite.vX = 3;
+        that.hit = 2;
+        that.sprite.currentMoves = {
+            MOVE_DOWN:source.sprite.currentMoves[MOVE_DOWN],
+            MOVE_UP:source.sprite.currentMoves[MOVE_UP],
+            MOVE_LEFT:source.sprite.currentMoves[MOVE_LEFT],
+            MOVE_RIGHT:source.sprite.currentMoves[MOVE_RIGHT]
+        };
+        that.sprite.currentMoves[source.sprite.currentAnimation] = true;
+
+        that.moveSprite = that.sprite.tick = function(){
+            Mover.moveSprite.apply(that);
+        };
+
+        if (source.sprite.currentAnimation == MOVE_UP || source.sprite.currentAnimation == MOVE_DOWN) {
+          that.sprite.y = source.sprite.y + that.hit * (source.sprite.currentAnimation == MOVE_UP ? -1 : 1);
+          that.sprite.x = source.sprite.x;
+        }
+        if (source.sprite.currentAnimation == MOVE_LEFT || source.sprite.currentAnimation == MOVE_RIGHT) {
+          that.sprite.x = source.sprite.x + source.hit * (source.sprite.currentAnimation == MOVE_LEFT ? -1 : 1);
+          that.sprite.y = source.sprite.y;
+        }
+
+        that.onWallCollision = function(){
+            that.onPlayerCollision();
+        };
+
+        that.onPlayerCollision = function(player){
+            var idx;
+
+            if(player == that.source){
+                return true;
+            }
+
+            that.moving = false;
+            for(var m in game.missiles){
+                if(game.missiles[m] == that){
+                    idx = m;
+                    break;
+                }
+            }
+            if(idx){
+                delete game.missiles[idx];
+            }
+
+            if(player){
+               player.takeDamage();
+            }
+
+            stage.removeChild(that.sprite);
+            return false;
+        };
+
+        game.missiles.push(that);
+        stage.addChild(that.sprite);
+
+        return that;
+    };
+
     game.Player = Player;
+    game.Missile = Missile;
   })();
 
   document.onkeydown = handleKeyDown;
@@ -269,7 +378,7 @@
 
   function handleKeyUp(e) {
     if (!e) {
-      var e = window.event;
+      e = window.event;
     }
     switch (e.keyCode) {
       case KEYCODE_LEFT:
@@ -284,6 +393,10 @@
       case KEYCODE_DOWN:
         currentPlayer.resetMove(MOVE_DOWN);
         break;
+      case KEYCODE_SPACE:
+        currentPlayer.stopFiring();
+        break;
+
     }
 
   }
@@ -291,7 +404,7 @@
 
   function handleKeyDown(e) {
     if (!e) {
-      var e = window.event;
+      e = window.event;
     }
     switch (e.keyCode) {
       case KEYCODE_LEFT:
@@ -325,14 +438,26 @@
     createjs.Ticker.setFPS(60);
 
     currentPlayer = new game.Player("${params.playerName ?: 'anonymous'}", "Boy", {onload:function(){
-        currentPlayer.resetMove(currentPlayer.bmpAnimation.currentAnimation);
-        window.onblur = currentPlayer.resetMove;
+        currentPlayer.resetMove(currentPlayer.sprite.currentAnimation);
+        window.onblur = function(){
+            currentPlayer.resetMove(currentPlayer.sprite.currentAnimation);
+        };
         window.onunload = function(){
-                grailsEvents.send('leave', {playerName:currentPlayer.playerName});
+        grailsEvents.send('leave', {playerName:currentPlayer.playerName});
         };
     }});
 
+    currentPlayer.onDamage = function(){
+        if(currentPlayer.life <= 0){
+            grailsEvents.send('leave', {playerName:currentPlayer.playerName});
+            window.location.href = 'http://heyyeyaaeyaaaeyaeyaa.com/';
+          }else{
+            $('#life').html(currentPlayer.life);
+        }
+    };
+
     game.players = [currentPlayer];
+    game.missiles = [];
 
     grailsEvents.on('leave',function(data){
       var targetPlayer;
@@ -342,7 +467,10 @@
             break;
         }
       }
+      stage.removeChild( game.players[targetPlayer].sprite);
+      stage.removeChild( game.players[targetPlayer].text);
       delete game.players[targetPlayer];
+
     });
 
     grailsEvents.on('move',function(data){
@@ -364,7 +492,7 @@
           }else if(data.action == "stop"){
               targetPlayer.resetMove(data.direction, data);
           }
-          if(data && !targetPlayer.hitRadius(data.x, data.y, 10)){
+          if(data && targetPlayer.hitRadius && !targetPlayer.hitRadius(data.x, data.y, 50)){
             targetPlayer.fixPosition(data);
           }
       }
@@ -379,13 +507,22 @@
         }
       }
 
-      targetPlayer.fire(true);
+      if(targetPlayer != currentPlayer){
+        targetPlayer.fire(true);
+      }
+
+
     });
 
     createjs.Ticker.addListener(function () {
         for (var i in game.players) {
-        game.players[i].moveSprite();
-    }
+            if(game.players[i].moveSprite){
+                game.players[i].moveSprite();
+            }
+        }
+        for (var i in game.missiles) {
+            game.missiles[i].moveSprite();
+        }
     stage.update();
 
 
