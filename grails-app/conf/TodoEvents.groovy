@@ -12,19 +12,6 @@ events = {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 //springIntegrationModules = ['amqp']
 //springIntegration = {
 //

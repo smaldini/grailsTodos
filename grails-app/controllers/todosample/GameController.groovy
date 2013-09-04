@@ -12,8 +12,8 @@ package todosample
  */
 class GameController {
 
-    def board(String playerName){
-        if(!playerName){
+    def board(String playerName) {
+        if (!playerName) {
             render 'Please use the following URL format: http://.../game/[Your user name]'
             return
         }

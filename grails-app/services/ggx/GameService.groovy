@@ -1,6 +1,6 @@
 package ggx
 
-import grails.events.Listener
+import reactor.spring.annotation.Selector
 
 /**
  * Author: smaldini
@@ -9,7 +9,7 @@ import grails.events.Listener
  */
 class GameService {
 
-    @Listener(namespace='browser')
+    @Selector(reactor='browser')
     void fire(evt){
         log.info evt
     }
