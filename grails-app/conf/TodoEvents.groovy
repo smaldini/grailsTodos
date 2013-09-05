@@ -1,16 +1,18 @@
+import org.grails.plugin.platform.events.push.SharedConstants
 import todosample.Todo
 
-events = {
-    'afterInsert' browser: true, namespace: 'gorm', filter: Todo
-    'afterDelete' browser: true, namespace: 'gorm', filter: Todo
-    'afterUpdate' browser: true, namespace: 'gorm', filter: Todo
 
-    "move" namespace: 'browser', browser: true
-    "fire" namespace: 'browser', browser: true
-    "leave" namespace: 'browser', browser: true
+doWithReactor = {
 
+	reactor('grailsReactor') {
+		ext 'gorm', true
+		ext 'browser', ['afterInsert', 'afterDelete', 'afterUpdate']
+	}
+
+	reactor(SharedConstants.PUSH_SCOPE) {
+		ext 'browser', ['move', 'fire', 'leave']
+	}
 }
-
 
 //springIntegrationModules = ['amqp']
 //springIntegration = {
