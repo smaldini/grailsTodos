@@ -44,13 +44,11 @@ grails.project.dependency.resolution = {
 		// specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 		runtime 'mysql:mysql-connector-java:5.1.18'
 		runtime 'org.springframework.integration:spring-integration-dsl-groovy-amqp:1.0.0.BUILD-SNAPSHOT'
-
-
 		compile "org.cloudfoundry:cloudfoundry-runtime:0.8.4"
 	}
 
 	plugins {
-		runtime ":jquery:1.8.3"
+		runtime ":jquery:1.10.2"
 		compile ":resources:1.2"
 		runtime(":coffeescript-resources:0.3.2") {
 			exclude 'resources'
@@ -64,12 +62,6 @@ grails.project.dependency.resolution = {
 		//runtime (":events-si:1.0.M5")
 		//runtime (":vertx:1.0-SNAPSHOT")
 		runtime (":events-push:1.0.0.BUILD-SNAPSHOT")
-
-		// Uncomment these (or add new ones) to enable additional resources capabilities
-		//runtime ":zipped-resources:1.0"
-		//runtime ":cached-resources:1.0"
-		//runtime ":yui-minify-resources:0.1.4"
-
 
 		build ":tomcat:7.0.42"
 	}
