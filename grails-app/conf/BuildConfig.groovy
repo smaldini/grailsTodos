@@ -6,7 +6,7 @@ grails.project.target.level = 1.7
 grails.project.source.level = 1.7
 //grails.plugin.location.'platformCore' = '../platform-core'
 //grails.plugin.location.'eventsSi' = '../plugin-platform-project/grails-plugin-platform-incubator/events-si'
-grails.plugin.location.'eventsPush' = '../grails-events-push'
+//grails.plugin.location.'eventsPush' = '../grails-events-push'
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
 
 grails.tomcat.nio = true
@@ -44,12 +44,9 @@ grails.project.dependency.resolution = {
 		// specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 		runtime 'mysql:mysql-connector-java:5.1.18'
 		runtime 'org.springframework.integration:spring-integration-dsl-groovy-amqp:1.0.0.BUILD-SNAPSHOT'
-		compile 'org.grails.plugins:events:1.0.0.BUILD-SNAPSHOT'
-		compile('org.atmosphere:atmosphere-runtime:2.0.0.RC3') {
-			excludes 'slf4j-api', 'atmosphere-ping'
-		}
 
 
+		compile "org.cloudfoundry:cloudfoundry-runtime:0.8.4"
 	}
 
 	plugins {
@@ -66,7 +63,7 @@ grails.project.dependency.resolution = {
 
 		//runtime (":events-si:1.0.M5")
 		//runtime (":vertx:1.0-SNAPSHOT")
-		//runtime (":events-push:1.0.M7")
+		runtime (":events-push:1.0.0.BUILD-SNAPSHOT")
 
 		// Uncomment these (or add new ones) to enable additional resources capabilities
 		//runtime ":zipped-resources:1.0"
