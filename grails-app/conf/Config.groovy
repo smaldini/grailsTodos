@@ -92,6 +92,8 @@ log4j = {
 
     info 'org.springframework.integration'
     info 'grails.app'
+    info 'grails.plugin.cloudsupport'
+    info 'grails.plugin.cloudfoundry'
 //    debug 'org.grails.plugin.platform.events'
 //    info 'org.springframework.amqp'
 //    trace 'org.atmosphere.cpr'

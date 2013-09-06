@@ -38,13 +38,14 @@ grails.project.dependency.resolution = {
 		//mavenRepo "http://repository.jboss.com/maven2/"
 		mavenRepo "https://oss.sonatype.org/content/repositories/snapshots"
 		mavenRepo 'https://repo.springsource.org/libs-snapshot/'
-		mavenRepo "http://repo.grails.org/grails/libs-snapshots-local"
+		mavenRepo "http://repo.grails.org/grails/libs-snapshots-local/"
 	}
 	dependencies {
 		// specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-		runtime 'mysql:mysql-connector-java:5.1.18'
-		runtime 'org.springframework.integration:spring-integration-dsl-groovy-amqp:1.0.0.BUILD-SNAPSHOT'
+		runtime 'mysql:mysql-connector-java:5.1.24'
+		//runtime 'org.springframework.integration:spring-integration-dsl-groovy-amqp:1.0.0.BUILD-SNAPSHOT'
 		compile "org.cloudfoundry:cloudfoundry-runtime:0.8.4"
+		compile 'org.grails.plugins:events:1.0.0.BUILD-SNAPSHOT'
 	}
 
 	plugins {
@@ -54,10 +55,9 @@ grails.project.dependency.resolution = {
 			exclude 'resources'
 		}
 
-		runtime ":cloud-foundry:1.2.3"
 		runtime ":hibernate:3.6.10.M6" // or ":hibernate4:4.1.11.M2"
 
-		runtime ":rabbitmq:1.0.0"
+		//runtime ":rabbitmq:1.0.0"
 
 		//runtime (":events-si:1.0.M5")
 		//runtime (":vertx:1.0-SNAPSHOT")
